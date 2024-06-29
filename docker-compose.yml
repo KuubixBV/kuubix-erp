@@ -1,0 +1,50 @@
+services:
+
+    # This will be our Dolibarr dev database
+    mariadb:
+        image: mariadb:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: dolibarr
+        volumes:
+            - ./database:/var/lib/mysql
+        networks:
+            dolibarr-net:
+                ipv4_address: 172.200.0.2
+
+    # This tool so we can inspect our data
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        depends_on:
+            - mariadb
+        environment:
+            PMA_HOST: mariadb
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 1
+        ports:
+            - ${DB_MPORT}:80
+        networks:
+            dolibarr-net:
+                ipv4_address: 172.200.0.3
+
+    # The NGINX and PHP server where Dolibarr will run (version 8.1.14)
+    web:
+        image: trafex/php-nginx:3.0.0
+        restart: always
+        volumes:
+            - ./dolibarr:/var/www/html
+        ports:
+            - ${WEB_PORT}:8080
+        depends_on:
+            - mariadb
+        networks:
+            dolibarr-net:
+                ipv4_address: 172.200.0.4
+
+# Network to link it all
+networks:
+    dolibarr-net:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.200.0.0/29
