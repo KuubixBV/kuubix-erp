@@ -56,7 +56,7 @@ save_db() {
 # Function to format date
 format_date() {
     local input_date=$1
-    if [[ "$(uname)" == "Darwin" ]]; then
+    if date -j -f "%Y%m%d %H%M%S" "$input_date" "+%d/%m/%Y %H:%M" > /dev/null 2>&1; then
         date -j -f "%Y%m%d %H%M%S" "$input_date" "+%d/%m/%Y %H:%M"
     else
         date -d "$input_date" "+%d/%m/%Y %H:%M"
@@ -115,7 +115,7 @@ load_db() {
     fi
 
     echo "Importing snapshot..."
-    cat $SNAPSHOT_FILE | sudo docker exec -i $(docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
+    cat $SNAPSHOT_FILE | sudo docker exec -i $(sudo docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
 
     if [ $? -eq 0 ]; then
         echo "Database loaded successfully."
@@ -134,4 +134,3 @@ else
     echo "Usage: $0 <save|load> [snapshot_file]"
     exit 1
 fi
-
