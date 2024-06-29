@@ -1,22 +1,22 @@
 #!/bin/bash
 
 # Load environment variables from .env file
-if [ ! -f .env ]; then
+if [ ! -f ../.env ]; then
     echo ".env file not found!"
     exit 1
 fi
 
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' ../.env | xargs)
 
 # Directory to store snapshots
-SNAPSHOT_DIR="snapshots"
+SNAPSHOT_DIR="../snapshots"
 
 # Ensure the snapshot directory exists
 mkdir -p $SNAPSHOT_DIR
 
 # Function to install mysqldump if not present
 install_mysqldump() {
-    docker exec -it $(docker ps -qf "name=mariadb") bash -c "command -v mysqldump > /dev/null 2>&1 || apt-get update && apt-get install -y mysql-client"
+    sudo docker exec -it $(docker ps -qf "name=mariadb") bash -c "command -v mysqldump > /dev/null 2>&1 || apt-get update && apt-get install -y mysql-client"
 }
 
 # Function to sanitize filename
@@ -35,7 +35,7 @@ save_db() {
     FILENAME="$SNAPSHOT_DIR/${SNAPSHOT_NAME}_$TIMESTAMP.sql"
 
     echo "Saving database to $FILENAME..."
-    docker exec -i $(docker ps -qf "name=mariadb") mysqldump --column-statistics=0 -u root -p$DB_PASSWORD dolibarr > $FILENAME
+    sudo docker exec -i $(sudo docker ps -qf "name=mariadb") mysqldump --column-statistics=0 -u root -p$DB_PASSWORD dolibarr > $FILENAME
 
     if [ $? -eq 0 ]; then
         echo "Database saved successfully."
@@ -98,7 +98,7 @@ load_db() {
     fi
 
     echo "Dropping and recreating the dolibarr database..."
-    docker exec -i $(docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD -e "DROP DATABASE IF EXISTS dolibarr; CREATE DATABASE dolibarr;"
+    sudo docker exec -i $(sudo docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD -e "DROP DATABASE IF EXISTS dolibarr; CREATE DATABASE dolibarr;"
 
     if [ $? -ne 0 ]; then
         echo "Failed to drop and recreate database."
@@ -106,7 +106,7 @@ load_db() {
     fi
 
     echo "Importing snapshot..."
-    cat $SNAPSHOT_FILE | docker exec -i $(docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
+    cat $SNAPSHOT_FILE | sudo docker exec -i $(docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
 
     if [ $? -eq 0 ]; then
         echo "Database loaded successfully."
