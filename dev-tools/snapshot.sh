@@ -115,7 +115,7 @@ load_db() {
     fi
 
     echo "Importing snapshot..."
-    cat $SNAPSHOT_FILE | sudo docker exec -i $(docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
+    cat $SNAPSHOT_FILE | sudo docker exec -i $(sudo docker ps -qf "name=mariadb") mysql -u root -p$DB_PASSWORD dolibarr
 
     if [ $? -eq 0 ]; then
         echo "Database loaded successfully."
