@@ -36,6 +36,7 @@ download_and_extract() {
     echo "Cleaning up..."
     rm -rf "$temp_dir"
 
+    chown -R kuadmin:www-data ./dolibarr
     echo "Version $version installed successfully."
 
     # Update the current version file
