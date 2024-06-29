@@ -1,6 +1,4 @@
 services:
-
-    # This will be our Dolibarr dev database
     mariadb:
         image: mariadb:latest
         environment:
@@ -12,7 +10,6 @@ services:
             dolibarr-net:
                 ipv4_address: 172.200.0.2
 
-    # This tool so we can inspect our data
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         depends_on:
@@ -27,21 +24,30 @@ services:
             dolibarr-net:
                 ipv4_address: 172.200.0.3
 
-    # The NGINX and PHP server where Dolibarr will run (version 8.1.14)
-    web:
-        image: trafex/php-nginx:3.0.0
-        restart: always
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile.php
         volumes:
             - ./dolibarr:/var/www/html
-        ports:
-            - ${WEB_PORT}:8080
-        depends_on:
-            - mariadb
         networks:
             dolibarr-net:
                 ipv4_address: 172.200.0.4
 
-# Network to link it all
+    nginx:
+        build:
+            context: .
+            dockerfile: Dockerfile.nginx
+        ports:
+            - ${WEB_PORT}:80
+        volumes:
+            - ./dolibarr:/var/www/html
+        depends_on:
+            - php
+        networks:
+            dolibarr-net:
+                ipv4_address: 172.200.0.5
+
 networks:
     dolibarr-net:
         driver: bridge
