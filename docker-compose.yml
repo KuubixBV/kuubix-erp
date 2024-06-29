@@ -30,6 +30,8 @@ services:
             dockerfile: Dockerfile.php
         volumes:
             - ./dolibarr:/var/www/html
+        depends_on:
+            - mariadb
         networks:
             dolibarr-net:
                 ipv4_address: 172.200.0.4
@@ -44,6 +46,7 @@ services:
             - ./dolibarr:/var/www/html
         depends_on:
             - php
+            - mariadb
         networks:
             dolibarr-net:
                 ipv4_address: 172.200.0.5
