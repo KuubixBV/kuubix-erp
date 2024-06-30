@@ -7,3 +7,4 @@ RUN docker-php-ext-install zip
 RUN docker-php-ext-install intl
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl && docker-php-ext-install imap
 RUN docker-php-ext-install calendar
+COPY ./php/php.ini /usr/local/etc/php/
