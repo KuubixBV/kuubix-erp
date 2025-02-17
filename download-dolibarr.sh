@@ -34,7 +34,14 @@ download_and_extract() {
     echo "Cleaning up..."
     rm -rf "$temp_dir"
 
-    sudo chown -R kuadmin:www-data ./dolibarr
+    cp ./dolibarr/conf/conf.php.example ./dolibarr/conf/conf.php
+    mkdir ./dolibarr/documents
+    if [ -f .env ]; then
+        source .env
+    fi
+    WEB_PORT=$(echo -n "$WEB_PORT" | tr -d '\r' | tr -d '\n')
+    sed -i "s|\$dolibarr_main_url_root=''|\$dolibarr_main_url_root='http://localhost:${WEB_PORT}'|" ./dolibarr/conf/conf.php
+    sudo chown -R 33:33 ./dolibarr
     echo "Version $version installed successfully."
 
     # Update the current version file
