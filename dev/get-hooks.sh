@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Run the grep command and store the result in a variable
+cd ../
 grep_output=$(grep -r '>executeHooks(' *)
 
 # Extract the method names and sort them uniquely
